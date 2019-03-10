@@ -71,8 +71,8 @@ void loop() {
 
   kalAngleX = kalmanX.getAngle(accXangle, gyroXrate, (double)(micros() - timer) / 1000000);
   timer = micros();
-  //mapX = map(kalAngleX, 0, 200, 0, 179);
-  mapX = map(kalAngleX, 0, 200, 179, 0);
+  mapX = map(kalAngleX, 0, 200, 0, 179);
+  //mapX = map(kalAngleX, 0, 200, 179, 0);
 
   correctionX = 27; 
 
