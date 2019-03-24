@@ -58,7 +58,7 @@ volatile unsigned long rightWheel;
 
 volatile unsigned long leftWheel;
 
-byte maxspeed = 150;
+byte maxspeed = 0;
 
 byte leftSpeed = maxspeed;
 byte rightSpeed = maxspeed;
@@ -70,20 +70,20 @@ double leftIntegral = 0;
 int pidcount = 1;
 
 double kp = 2;
-double ki = 0.3;
-double kd = 0.5;
+double ki = 5;
+double kd = 1;
 
-double setPoint = 20;
+double setPoint = 100;
 
 
 void setup()
 {
     Serial.begin(9600);
     //Setup For Servo
-    servo.attach(servopin);
+    //servo.attach(servopin);
 
-    pinMode(rEncoder, INPUT);
-    pinMode(lEncoder, INPUT);
+    pinMode(rEncoder, INPUT_PULLUP);
+    pinMode(lEncoder, INPUT_PULLUP);
 
     //Setup For L293N
     pinMode(ldir2,OUTPUT);
@@ -94,14 +94,14 @@ void setup()
     pinMode(rpwm,OUTPUT);
     
     //Setup Sr04
-    pinMode(initPin, OUTPUT);
-    pinMode(echoPin, INPUT); 
+    //pinMode(initPin, OUTPUT);
+    //pinMode(echoPin, INPUT); 
 
     digitalWrite(rEncoder, HIGH);
     digitalWrite(lEncoder, HIGH);
 
-    attachInterrupt(1, rightEncoderISR, FALLING); 
-    attachInterrupt(0, leftEncoderISR, FALLING);
+    attachInterrupt(1, rightEncoderISR, CHANGE); 
+    attachInterrupt(0, leftEncoderISR, CHANGE);
 
     digitalWrite(ldir1, LOW);
     digitalWrite(ldir2, HIGH);
@@ -293,39 +293,41 @@ bool waittostop(){
 void loop()
 {
 
-  if (get_distance_sr04() < 50) {
-    rightWheel = 0;
-    leftWheel = 0;
-    if(waittostop()){
-      MotorForward_and_Stop(0,0);
-      long kanan_dist = spin_and_get_direction(90,0);
-      delay(100);
-      long depan_dist = spin_and_get_direction(0,90);
-      delay(100);
-      long kiri_dist = spin_and_get_direction(90,180);
-      delay(100);
-      Servo_back_pos(180,90);
-      delay(50);
-      if(kanan_dist <= 10 and kiri_dist <=10) {BackupWithEnco(encoder_kanan,encoder_kiri,30);delay(300);}
-      //---------------------------------------------------------------------
-      if(kanan_dist > 10 and kiri_dist <=10 and depan_dist <=7){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kiri,20);}
-      if(kanan_dist <= 10 and kiri_dist > 10 and depan_dist <=7){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kanan,20);}
-      //------------------------------------------------------------------------------------------------------------------------------
-      if(kanan_dist > 10 and kiri_dist <=10 and depan_dist > 7){TurnWithEnco(encoder_kiri,20);}
-      if(kanan_dist <= 10 and kiri_dist > 10 and depan_dist > 7){TurnWithEnco(encoder_kanan,20);}
-      //--------------------------------------------------------------------------------------------------
-      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist <=7 and kanan_dist > kiri_dist){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kiri,20);}
-      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist <=7 and kanan_dist < kiri_dist){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kanan,20);}
-      //---------------------------------------------------------------------------------------------------------------------------------------------------------
-      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist > 7 and kanan_dist < kiri_dist){TurnWithEnco(encoder_kanan,20);}
-      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist > 7 and kanan_dist > kiri_dist){TurnWithEnco(encoder_kiri,20);}
-      //---------------------------------------------------------------------------------------------------------------------------
-      }
-     MotorForward_and_Stop(0,0);
-  }
+//  if (get_distance_sr04() < 50) {
+//    rightWheel = 0;
+//    leftWheel = 0;
+//    if(waittostop()){
+//      MotorForward_and_Stop(0,0);
+//      long kanan_dist = spin_and_get_direction(90,0);
+//      delay(100);
+//      long depan_dist = spin_and_get_direction(0,90);
+//      delay(100);
+//      long kiri_dist = spin_and_get_direction(90,180);
+//      delay(100);
+//      Servo_back_pos(180,90);
+//      delay(50);
+//      if(kanan_dist <= 10 and kiri_dist <=10) {BackupWithEnco(encoder_kanan,encoder_kiri,30);delay(300);}
+//      //---------------------------------------------------------------------
+//      if(kanan_dist > 10 and kiri_dist <=10 and depan_dist <=7){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kiri,20);}
+//      if(kanan_dist <= 10 and kiri_dist > 10 and depan_dist <=7){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kanan,20);}
+//      //------------------------------------------------------------------------------------------------------------------------------
+//      if(kanan_dist > 10 and kiri_dist <=10 and depan_dist > 7){TurnWithEnco(encoder_kiri,20);}
+//      if(kanan_dist <= 10 and kiri_dist > 10 and depan_dist > 7){TurnWithEnco(encoder_kanan,20);}
+//      //--------------------------------------------------------------------------------------------------
+//      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist <=7 and kanan_dist > kiri_dist){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kiri,20);}
+//      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist <=7 and kanan_dist < kiri_dist){BackupWithEnco(encoder_kanan,encoder_kiri,30);MotorForward_and_Stop(0,0);delay(300);TurnWithEnco(encoder_kanan,20);}
+//      //---------------------------------------------------------------------------------------------------------------------------------------------------------
+//      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist > 7 and kanan_dist < kiri_dist){TurnWithEnco(encoder_kanan,20);}
+//      if(kanan_dist > 10 and kiri_dist > 10 and depan_dist > 7 and kanan_dist > kiri_dist){TurnWithEnco(encoder_kiri,20);}
+//      //---------------------------------------------------------------------------------------------------------------------------
+//      }
+//     MotorForward_and_Stop(0,0);
+//  }
 
   input = rightWheel;
-  rightWheel = 0;
+  Serial.print("Kanan ");
+  Serial.println(rightWheel);
+  //rightWheel = 0;
  
   poportional = setPoint - input;
   derivative = poportional - rightLastError;
@@ -335,29 +337,33 @@ void loop()
  
   rightLastError = poportional;
  
-  if((rightSpeed + output) > 150) rightSpeed = 150;
-  else rightSpeed = output + rightSpeed;
+  //if((rightSpeed + output) > 3500) rightSpeed = 150;
+  rightSpeed = output + rightSpeed;
+  Serial.print("Kanan Speed ");
   Serial.println(rightSpeed);
   analogWrite(rpwm, rightSpeed);
- 
-  input = leftWheel;
-  leftWheel = 0;
-
-  poportional = setPoint - input;
-  derivative = poportional - leftLastError;
-  leftIntegral = (leftIntegral + poportional)/pidcount;
- 
-  output = kp * poportional + kd * derivative + ki * leftIntegral;
- 
-  leftLastError = poportional;
+// 
+//  input = leftWheel;
+//  Serial.print("Kiri ");
+//  Serial.println(leftWheel);
+//  leftWheel = 0;
+//
+//  poportional = setPoint - input;
+//  derivative = poportional - leftLastError;
+//  leftIntegral = (leftIntegral + poportional)/pidcount;
+// 
+//  output = kp * poportional + kd * derivative + ki * leftIntegral;
+// 
+//  leftLastError = poportional;
   pidcount++;
-
-  if((leftSpeed + output) > 130) leftSpeed = 130;
-  else leftSpeed = output + leftSpeed;
-  Serial.println(leftSpeed);
-  analogWrite(lpwm, leftSpeed);
+//
+//  if((leftSpeed + output) > 3500) leftSpeed = 130;
+//  else leftSpeed = output + leftSpeed;
+//  Serial.print("Kiri Speed ");
+//  Serial.println(leftSpeed);
+//  analogWrite(lpwm, leftSpeed);
  
-  delay(100);
+  //delay(500);
   //---------------------------------------------------------------
 	//long gap = get_distance_sr04();
   //if(gap > 50 ) MotorForward_and_Stop(255,150);
