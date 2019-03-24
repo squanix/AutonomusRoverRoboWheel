@@ -25,7 +25,7 @@ void setup() {
   TCCR1B = TCCR1B & 0b11111000 | 1;                   // set 31KHz PWM to prevent motor noise
   myPID.SetMode(AUTOMATIC);
   myPID.SetSampleTime(1);
-  myPID.SetOutputLimits(-255, 255);
+  myPID.SetOutputLimits(0, 255);
 }
 void loop() {
 
